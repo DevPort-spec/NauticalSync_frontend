@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation'; // 1. Import useRouter
 import { 
   Compass, 
   Mail, 
@@ -12,14 +13,17 @@ import {
   Linkedin,
   Eye,
   EyeOff,
-  Check
+  Check,
+  Loader2 // 2. Import Loader2 for the button
 } from 'lucide-react';
 
 export default function AuthPage() {
+  const router = useRouter(); // 3. Initialize Router
   const [isLogin, setIsLogin] = useState(true);
   const [role, setRole] = useState<'seafarer' | 'agent'>('seafarer');
   const [showPassword, setShowPassword] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // 4. State for submit loading
 
   // Handle switching modes with a slight delay for animation smoothness
   const toggleMode = () => {
@@ -32,7 +36,18 @@ export default function AuthPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`Authenticating as ${role}... Redirecting to Dashboard.`);
+    setIsSubmitting(true); // Start loading
+
+    // Simulate authentication delay
+    setTimeout(() => {
+      if (role === 'seafarer') {
+        // FIX: Updated to Capital 'D' to match your folder structure 'app/Dashboard'
+        router.push('/dashboard/seafarer');
+      } else {
+        // Redirect to Employer Dashboard
+        router.push('/dashboard/employer'); 
+      }
+    }, 1500);
   };
 
   return (
@@ -271,10 +286,19 @@ export default function AuthPage() {
             {/* Submit Button */}
             <button 
               type="submit" 
-              className="w-full bg-[#64ffda] text-[#0a192f] font-bold py-3.5 rounded-lg hover:bg-[#58e6c5] transition-all duration-300 flex items-center justify-center gap-2 group shadow-[0_0_20px_rgba(100,255,218,0.1)] hover:shadow-[0_0_25px_rgba(100,255,218,0.3)] hover:-translate-y-1 active:translate-y-0"
+              disabled={isSubmitting}
+              className="w-full bg-[#64ffda] text-[#0a192f] font-bold py-3.5 rounded-lg hover:bg-[#58e6c5] transition-all duration-300 flex items-center justify-center gap-2 group shadow-[0_0_20px_rgba(100,255,218,0.1)] hover:shadow-[0_0_25px_rgba(100,255,218,0.3)] hover:-translate-y-1 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {isLogin ? "Sign In" : "Create Account"}
-              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              {isSubmitting ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" /> Logging in...
+                </>
+              ) : (
+                <>
+                  {isLogin ? "Sign In" : "Create Account"}
+                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
             </button>
           </form>
 
